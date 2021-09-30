@@ -55,10 +55,14 @@ def sun (size, x, y, color):
     polygon(screen, color, coordinates)
     polygon(screen, black, coordinates, 1)
 
-home (115, 70, 125)
-tree(60, 330, 130)
-clouds (20, 200, 50, white)
-sun (25, 400, 50, pink)
+home(110, 48, 160)
+home(70, 260, 155)
+tree (51, 197, 175)
+tree (40, 360, 160)
+clouds (16, 85, 45, white)
+clouds (12, 227, 69, white)
+clouds (16, 364, 60, white)
+sun (22, 30, 27, pink)
 
 pygame.display.update()
 clock = pygame.time.Clock()
@@ -71,8 +75,5 @@ while not finished:
             finished = True
 
 pygame.quit()
-
-
-
 
 
