@@ -23,7 +23,6 @@ circle(screen, black, (250, 250), 15)
 circle(screen, red, (350, 250), 25)
 circle(screen, black, (350, 250), 25, 1)
 circle(screen, black, (350, 250), 15)
-
 polygon(screen, black, [(260, 370), (350, 370), (370, 400), (240, 400)])
 
 polygon(screen, black, [(210, 150), (280, 220), (280, 240), (210, 170)])
