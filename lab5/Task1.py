@@ -14,7 +14,7 @@ MAGENTA = (255, 0, 255)
 CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
 COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
-font = pygame.font.SysFont("arial", 20)
+font = pygame.font.SysFont("arial", 30)
 x, y, r = 0, 0, 0
 
 
@@ -23,6 +23,9 @@ def new_ball():
     x = randint(100, 700)
     y = randint(100, 500)
     r = randint(30, 50)
+
+
+def draw_ball():
     color = COLORS[randint(0, 5)]
     circle(screen, color, (x, y), r)
 
@@ -42,11 +45,15 @@ while not finished:
             if (event.x - x) ** 2 + (event.y - y) ** 2 < r ** 2:
                 print('Good hit)')
                 points += 1
+                text = pygame.font.Font.render(font, "Bad hit... Points: " + str(points), 1, YELLOW, BLUE)
+                pygame.Surface.blit(screen, text, (0, 0))
             else:
                 print('Bad hit(')
-
+                text = pygame.font.Font.render(font, "Bad hit... Points: " + str(points), 1, YELLOW, BLUE)
+                pygame.Surface.blit(screen, text, (0, 0))
     screen.fill(BLACK)
     new_ball()
+    draw_ball()
     pygame.display.update()
 
 pygame.quit()
