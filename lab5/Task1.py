@@ -1,4 +1,3 @@
-import pygame
 from pygame.draw import *
 from random import randint
 import pygame.freetype
@@ -13,7 +12,7 @@ GREEN = (0, 255, 0)
 MAGENTA = (255, 0, 255)
 CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
-FONT_COLOR = (120, 70, 70)
+FONT_COLOR = (160, 70, 70)
 COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 font = pygame.font.SysFont('Arial', 10, False, False)
 x_0, y_0, r_0 = 0, 0, 0
@@ -21,8 +20,8 @@ x_0, y_0, r_0 = 0, 0, 0
 
 def new_ball():
     global x_0, y_0, r_0
-    x_0 = randint(100, 700)
-    y_0 = randint(100, 500)
+    x_0 = randint(200, 700)
+    y_0 = randint(200, 500)
     r_0 = randint(30, 50)
 
 
@@ -36,11 +35,13 @@ clock = pygame.time.Clock()
 finished = False
 points = 0
 success = -1
+time = 0
 while not finished:
     clock.tick(FPS)
+    time += FPS
     screen.fill(BLACK)
     for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+        if (event.type == pygame.QUIT) or (time >= 100):
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
             event.x = event.pos[0]
