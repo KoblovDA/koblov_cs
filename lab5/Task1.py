@@ -56,15 +56,15 @@ def change_of_color(clr, rand):
     return new_color[0], new_color[1], new_color[2]
 
 
-balls = []
+balls = []  # Массив, хранящий данные о шарике. Порядок такой же, как в new_ball.
 for i in range(0, NUMBER_OF_BALLS):
     balls.append([0, 0, 0, 0, 0, 0, 0])
 pygame.display.update()
 clock = pygame.time.Clock()
 finished = False
 score = 0
-success = -1
-global_success = -1
+success = -1  # Если клик успешен, то 1, иначе 0. До клика равна -1. Далее 1 или 0.
+global_success = -1  # Запоминает последний клик. Аналогична success, но не зануляется после обработки события
 time_of_game = 0
 num_of_success = -1
 while not finished:
@@ -102,9 +102,12 @@ while not finished:
         else:
             text_surface, rect = GAME_FONT.render("Click on the ball! Score: 0", FONT_COLOR)
             screen.blit(text_surface, (50, 50))
-    for i in range(0, 10):
+    for i in range(0, NUMBER_OF_BALLS):
         balls[i][5] += 1
         if (balls[i][5] >= 200) or (balls[i][3] == 0) or (num_of_success == i):
+            """
+            Замена шарика на новый, если существовал слишком долго, имел нулевую скорость или по нему попали
+            """
             balls[i] = new_ball()
         else:
             balls[i][0] += balls[i][3]
@@ -112,16 +115,12 @@ while not finished:
             balls[i][6] = change_of_color(balls[i][6], NUMBER_OF_BALLS)
         if balls[i][0] + balls[i][2] > 799:
             balls[i][3] = -balls[i][3]
-            balls[i][0] -= 10
         elif balls[i][0] - balls[i][2] < 1:
             balls[i][3] = -balls[i][3]
-            balls[i][0] += 10
         if balls[i][1] + balls[i][2] > 599:
             balls[i][4] = -balls[i][4]
-            balls[i][0] -= 10
         elif balls[i][1] - balls[i][2] < 1:
             balls[i][4] = -balls[i][4]
-            balls[i][0] += 10
         draw_ball(screen, balls[i])
     num_of_success = -1
     success = 0
