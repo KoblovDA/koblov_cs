@@ -4,7 +4,8 @@ import pygame.freetype
 
 pygame.init()
 GAME_FONT = pygame.freetype.Font("arial.ttf", 40)
-screen = pygame.display.set_mode((700, 700))
+screen = pygame.display.set_mode((800, 600))
+WHITE = (255, 255, 255)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
@@ -14,22 +15,21 @@ CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
 FONT_COLOR = (160, 70, 70)
 COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]  # цвета шариков
-x_0, y_0, r_0 = 0, 0, 0
 MAX, MIN, FINE = 20, 10, -2  # количество очков за попадание в маленький, большой шарик, штраф за промах
 
 
 def new_ball():
-    global x_0, y_0, r_0, u_x, u_y, color
     x_0 = randint(200, 700)
     y_0 = randint(200, 500)
     r_0 = randint(30, 60)
     u_x = randint(-20, 20)
     u_y = randint(-20, 20)
     color = COLORS[randint(0, 5)]
+    return [x_0, y_0, r_0, u_x, u_y, 0, color]
 
 
-def draw_ball(scr, clr):
-    circle(scr, clr, (x_0, y_0), r_0)
+def draw_ball(scr, parameters):
+    circle(scr, parameters[6], (parameters[0], parameters[1]), parameters[2])
 
 
 def change_of_color(clr, rand):
@@ -45,68 +45,74 @@ def change_of_color(clr, rand):
     return new_color[0], new_color[1], new_color[2]
 
 
+balls = []
+for i in range(0, 10):
+    balls.append([0, 0, 0, 0, 0, 0, 0])
 pygame.display.update()
 clock = pygame.time.Clock()
 finished = False
-points = 0
+score = 0
 success = -1
-success_in_time = -1
+global_success = -1
 time_of_game = 0
-time_of_ball = 0
-u_x = 0
-u_y = 0
+num_of_success = -1
 while not finished:
     FPS = 30
     clock.tick(FPS)
     time_of_game += FPS
-    screen.fill(BLACK)
+    screen.fill(WHITE)
     for event in pygame.event.get():
         if (event.type == pygame.QUIT) or (time_of_game >= 10000):
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
             event.x = event.pos[0]
             event.y = event.pos[1]
-            if (event.x - x_0) ** 2 + (event.y - y_0) ** 2 < r_0 ** 2:
-                if r_0 < 45:
-                    points += MAX
-                else:
-                    points += MIN
-                success = 1
-                success_in_time = 1
-            else:
+            for i in range(0, 10):
+                x_ball, y_ball, r_ball = balls[i][0], balls[i][1], balls[i][2]
+                if (event.x - x_ball) ** 2 + (event.y - y_ball) ** 2 < r_ball ** 2:
+                    num_of_success = i
+                    if r_ball < 45:
+                        score += MAX
+                    else:
+                        score += MIN
+                    success = 1
+                    global_success = 1
+            if success != 1:
                 success = 0
-                points += FINE
-    if success == 1:
-        text_surface, rect = GAME_FONT.render("Good hit) Score: " + str(points), FONT_COLOR)
-        screen.blit(text_surface, (70, 120))
-    elif success == 0:
-        text_surface, rect = GAME_FONT.render("Bad hit... Score: " + str(points), FONT_COLOR)
-        screen.blit(text_surface, (70, 120))
-    else:
-        text_surface, rect = GAME_FONT.render("Click on the ball! Score: 0", FONT_COLOR)
-        screen.blit(text_surface, (70, 120))
-    time_of_ball += 1
-    if (time_of_ball >= 200) or (u_x == 0) or (success_in_time == 1):
-        new_ball()
-        time_of_ball = 0
-
-    else:
-        x_0 += u_x
-        y_0 += u_y
-        color = change_of_color(color, 10)
-        if x_0 + r_0 > 699:
-            u_x = - u_x
-            x_0 -= 10
-        elif x_0 - r_0 < 1:
-            u_x = - u_x
-            x_0 += 10
-        if y_0 + r_0 > 699:
-            u_y = - u_y
-            y_0 -= 10
-        elif y_0 - r_0 < 1:
-            u_y = - u_y
-            y_0 += 10
-    draw_ball(screen, color)
-    success_in_time = -1
+                global_success = 0
+                score += FINE
+        if global_success == 1:
+            text_surface, rect = GAME_FONT.render("Good hit) Score: " + str(score), FONT_COLOR)
+            screen.blit(text_surface, (50, 50))
+        else:
+            if global_success == 0:
+                text_surface, rect = GAME_FONT.render("Bad hit... Score: " + str(score), FONT_COLOR)
+                screen.blit(text_surface, (50, 50))
+            else:
+                text_surface, rect = GAME_FONT.render("Click on the ball! Score: 0", FONT_COLOR)
+                screen.blit(text_surface, (50, 50))
+        for i in range(0, 10):
+            balls[i][5] += 1
+            if (balls[i][5] >= 200) or (balls[i][3] == 0) or (num_of_success == i):
+                balls[i] = new_ball()
+            else:
+                balls[i][0] += balls[i][3]
+                balls[i][1] += balls[i][4]
+                balls[i][6] = change_of_color(balls[i][6], 10)
+            if balls[i][0] + balls[i][2] > 799:
+                balls[i][3] = -balls[i][3]
+                balls[i][0] -= 10
+            elif balls[i][0] - balls[i][2] < 1:
+                balls[i][3] = -balls[i][3]
+                balls[i][0] += 10
+            if balls[i][1] + balls[i][2] > 599:
+                balls[i][4] = -balls[i][4]
+                balls[i][0] -= 10
+            elif balls[i][1] - balls[i][2] < 1:
+                balls[i][4] = -balls[i][4]
+                balls[i][0] += 10
+            draw_ball(screen, balls[i])
+        num_of_success = -1
+        success = 0
     pygame.display.update()
 pygame.quit()
