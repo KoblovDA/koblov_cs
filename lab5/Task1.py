@@ -81,38 +81,38 @@ while not finished:
                 success = 0
                 global_success = 0
                 score += FINE
-        if global_success == 1:
-            text_surface, rect = GAME_FONT.render("Good hit) Score: " + str(score), FONT_COLOR)
+    if global_success == 1:
+        text_surface, rect = GAME_FONT.render("Good hit) Score: " + str(score), FONT_COLOR)
+        screen.blit(text_surface, (50, 50))
+    else:
+        if global_success == 0:
+            text_surface, rect = GAME_FONT.render("Bad hit... Score: " + str(score), FONT_COLOR)
             screen.blit(text_surface, (50, 50))
         else:
-            if global_success == 0:
-                text_surface, rect = GAME_FONT.render("Bad hit... Score: " + str(score), FONT_COLOR)
-                screen.blit(text_surface, (50, 50))
-            else:
-                text_surface, rect = GAME_FONT.render("Click on the ball! Score: 0", FONT_COLOR)
-                screen.blit(text_surface, (50, 50))
-        for i in range(0, 10):
-            balls[i][5] += 1
-            if (balls[i][5] >= 200) or (balls[i][3] == 0) or (num_of_success == i):
-                balls[i] = new_ball()
-            else:
-                balls[i][0] += balls[i][3]
-                balls[i][1] += balls[i][4]
-                balls[i][6] = change_of_color(balls[i][6], 10)
-            if balls[i][0] + balls[i][2] > 799:
-                balls[i][3] = -balls[i][3]
-                balls[i][0] -= 10
-            elif balls[i][0] - balls[i][2] < 1:
-                balls[i][3] = -balls[i][3]
-                balls[i][0] += 10
-            if balls[i][1] + balls[i][2] > 599:
-                balls[i][4] = -balls[i][4]
-                balls[i][0] -= 10
-            elif balls[i][1] - balls[i][2] < 1:
-                balls[i][4] = -balls[i][4]
-                balls[i][0] += 10
-            draw_ball(screen, balls[i])
-        num_of_success = -1
-        success = 0
+            text_surface, rect = GAME_FONT.render("Click on the ball! Score: 0", FONT_COLOR)
+            screen.blit(text_surface, (50, 50))
+    for i in range(0, 10):
+        balls[i][5] += 1
+        if (balls[i][5] >= 200) or (balls[i][3] == 0) or (num_of_success == i):
+            balls[i] = new_ball()
+        else:
+            balls[i][0] += balls[i][3]
+            balls[i][1] += balls[i][4]
+            balls[i][6] = change_of_color(balls[i][6], 10)
+        if balls[i][0] + balls[i][2] > 799:
+            balls[i][3] = -balls[i][3]
+            balls[i][0] -= 10
+        elif balls[i][0] - balls[i][2] < 1:
+            balls[i][3] = -balls[i][3]
+            balls[i][0] += 10
+        if balls[i][1] + balls[i][2] > 599:
+            balls[i][4] = -balls[i][4]
+            balls[i][0] -= 10
+        elif balls[i][1] - balls[i][2] < 1:
+            balls[i][4] = -balls[i][4]
+            balls[i][0] += 10
+        draw_ball(screen, balls[i])
+    num_of_success = -1
+    success = 0
     pygame.display.update()
 pygame.quit()
