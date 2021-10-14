@@ -20,15 +20,17 @@ MAX, MIN, FINE = 20, 10, -2  # количество очков за попада
 
 
 def new_ball():
-    global x_0, y_0, r_0
+    global x_0, y_0, r_0, u_x, u_y, color
     x_0 = randint(200, 700)
     y_0 = randint(200, 500)
     r_0 = randint(30, 60)
-
-
-def draw_ball(scr):
+    u_x = randint(-40, 40)
+    u_y = randint(-40, 40)
     color = COLORS[randint(0, 5)]
-    circle(scr, color, (x_0, y_0), r_0)
+
+
+def draw_ball(scr, clr):
+    circle(scr, clr, (x_0, y_0), r_0)
 
 
 pygame.display.update()
@@ -42,7 +44,7 @@ time_of_ball = 0
 u_x = 0
 u_y = 0
 while not finished:
-    FPS = randint(1, 2)
+    FPS = 5
     clock.tick(FPS)
     time_of_game += FPS
     screen.fill(BLACK)
@@ -58,26 +60,47 @@ while not finished:
                 else:
                     points += MIN
                 success = 1
-                success_in_time == 1
+                success_in_time = 1
             else:
                 success = 0
-                points += -FINE
+                points += FINE
     if success == 1:
         text_surface, rect = GAME_FONT.render("Good hit) Points: " + str(points), FONT_COLOR)
         screen.blit(text_surface, (70, 120))
-    elif success == -0:
+    elif success == 0:
         text_surface, rect = GAME_FONT.render("Bad hit... Points: " + str(points), FONT_COLOR)
         screen.blit(text_surface, (70, 120))
     time_of_ball += 1
-    if (time_of_ball >= 10) or (u_x == 0) or (success_in_time == 1):
+    if (time_of_ball >= 12) or (u_x == 0) or (success_in_time == 1):
         new_ball()
         time_of_ball = 0
-        u_x = randint(50, 120)
-        u_y = randint(50, 120)
+
     else:
         x_0 += u_x
         y_0 += u_y
-    draw_ball(screen)
+        color1 = color[0]
+        color2 = color[1]
+        color3 = color[2]
+        randcolor1 = randint(-25, 25)
+        randcolor2 = randint(-40, 40)
+        randcolor3 = randint(-40, 40)
+        color1 += randcolor1
+        color2 += randcolor2
+        color3 += randcolor3
+        if (color1 < 45):
+            color1 += 40
+        elif (color1 > 210):
+            color1 -= 40
+        if (color2 < 45):
+            color2 += 40
+        elif (color2 > 210):
+            color2 -= 40
+        if (color3 < 45):
+            color3 += 40
+        elif (color3 > 210):
+            color3 -= 40
+        color = (color1, color2, color3)
+    draw_ball(screen, color)
     success_in_time = -1
     pygame.display.update()
 pygame.quit()
