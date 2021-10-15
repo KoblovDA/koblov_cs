@@ -73,15 +73,18 @@ while not finished:
     time_of_game += FPS
     screen.fill(WHITE)
     for event in pygame.event.get():
-        if (event.type == pygame.QUIT) or (time_of_game >= 100000):
+        if (event.type == pygame.QUIT) or (
+                time_of_game >= 100000):  # Прерывание игры через некоторое время или при выходе
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
             event.x = event.pos[0]
             event.y = event.pos[1]
             for i in range(0, NUMBER_OF_BALLS):
                 x_ball, y_ball, r_ball = balls[i][0], balls[i][1], balls[i][2]
+                # Попадание клика в область шарика. Если попал - num_of_success присваивается номер этого шарика.
                 if (event.x - x_ball) ** 2 + (event.y - y_ball) ** 2 < r_ball ** 2:
                     num_of_success = i
+                    # Разветвление в зависимости от размера шарика
                     if r_ball < 45:
                         score += MAX
                     else:
@@ -91,7 +94,8 @@ while not finished:
             if success != 1:
                 success = 0
                 global_success = 0
-                score += FINE
+                score += FINE  # Штраф за непопадание
+    # Вывод надписи об успешности попадания. Использует перемену global_success (данные о последнем попадании)
     if global_success == 1:
         text_surface, rect = GAME_FONT.render("Good hit) Score: " + str(score), FONT_COLOR)
         screen.blit(text_surface, (50, 50))
@@ -105,14 +109,13 @@ while not finished:
     for i in range(0, NUMBER_OF_BALLS):
         balls[i][5] += 1
         if (balls[i][5] >= 200) or (balls[i][3] == 0) or (num_of_success == i):
-            """
-            Замена шарика на новый, если существовал слишком долго, имел нулевую скорость или по нему попали
-            """
+            # Замена шарика на новый, если существовал слишком долго, имел нулевую скорость или по нему попали
             balls[i] = new_ball()
         else:
             balls[i][0] += balls[i][3]
             balls[i][1] += balls[i][4]
             balls[i][6] = change_of_color(balls[i][6], NUMBER_OF_BALLS)
+        # Далее идут четыре условия, при которых шарик должен оттолкнуться от стенки - если его край к ней прижался
         if balls[i][0] + balls[i][2] > 799:
             balls[i][3] = -balls[i][3]
         elif balls[i][0] - balls[i][2] < 1:
@@ -122,7 +125,7 @@ while not finished:
         elif balls[i][1] - balls[i][2] < 1:
             balls[i][4] = -balls[i][4]
         draw_ball(screen, balls[i])
-    num_of_success = -1
+    num_of_success = -1  # Сброс номера шарика, по которому мы попали
     success = 0
     pygame.display.update()
 pygame.quit()
