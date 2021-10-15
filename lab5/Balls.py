@@ -114,7 +114,7 @@ while not finished:
         else:
             balls[i][0] += balls[i][3]
             balls[i][1] += balls[i][4]
-            balls[i][6] = change_of_color(balls[i][6], NUMBER_OF_BALLS)
+            balls[i][6] = change_of_color(balls[i][6], 8)
         # Далее идут четыре условия, при которых шарик должен оттолкнуться от стенки - если его край к ней прижался
         if balls[i][0] + balls[i][2] > 799:
             balls[i][3] = -balls[i][3]
