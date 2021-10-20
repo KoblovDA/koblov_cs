@@ -31,12 +31,33 @@ def new_ball():
     return [x_0, y_0, r_0, u_x, u_y, 0, color]
 
 
+def new_square():
+    """
+    Аналогично с шариком, только создаёт переменные для квадратиков, которые меньше и быстрее. x0, y0 задают
+    центр квадратика
+    """
+    x_0 = randint(200, 700)
+    y_0 = randint(200, 500)
+    r_0 = randint(10, 30)
+    u_x = randint(-40, 40)
+    u_y = randint(-40, 40)
+    color = COLORS[randint(0, 5)]
+    return [x_0, y_0, r_0, u_x, u_y, 0, color]
+
+
 def draw_ball(scr, parameters):
     """
     Принимает экран и параметры шарика (записанные в форме, как в прошлой функции), то есть использует
     координаты, цвет и радиус шарика
     """
     circle(scr, parameters[6], (parameters[0], parameters[1]), parameters[2])
+
+
+def draw_square(scr, parameters):
+    x_0 = parameters[0]
+    y_0 = parameters[1]
+    r_0 = parameters[2]
+    rect(scr, parameters[6], (x_0 - r_0, y_0 - r_0, x_0 + r_0, y_0 + r_0))
 
 
 def change_of_color(clr, rand):
@@ -57,8 +78,11 @@ def change_of_color(clr, rand):
 
 
 balls = []  # Массив, хранящий данные о шарике. Порядок такой же, как в new_ball.
+squares = []
 for i in range(0, NUMBER_OF_BALLS):
     balls.append([0, 0, 0, 0, 0, 0, 0])
+    squares.append([0, 0, 0, 0, 0, 0, 0])
+
 pygame.display.update()
 clock = pygame.time.Clock()
 finished = False
@@ -95,7 +119,7 @@ while not finished:
                 success = 0
                 global_success = 0
                 score += FINE  # Штраф за непопадание
-    # Вывод надписи об успешности попадания. Использует перемену global_success (данные о последнем попадании)
+    # Вывод надписи об успешности попадания. Использует переменную global_success (данные о последнем попадании)
     if global_success == 1:
         text_surface, rect = GAME_FONT.render("Good hit) Score: " + str(score), FONT_COLOR)
         screen.blit(text_surface, (50, 50))
