@@ -22,6 +22,24 @@ def draw_square(scr, parameters):
     pygame.draw.rect(scr, parameters[6], (x_0 - r_0, y_0 - r_0, 2 * r_0, 2 * r_0))
 
 
+def print_score(scr):
+    """
+    Вывод надписи об успешности попадания. Использует переменную global_success (данные о последнем попадании)
+    и число очков score
+    """
+    global global_success, score
+    if model.global_success == 1:
+        text_surface, rect = GAME_FONT.render("Good hit) Score: " + str(model.score), model.FONT_COLOR)
+        scr.blit(text_surface, (50, 50))
+    else:
+        if model.global_success == 0:
+            text_surface, rect = GAME_FONT.render("Bad hit... Score: " + str(model.score), model.FONT_COLOR)
+            scr.blit(text_surface, (50, 50))
+        else:
+            text_surface, rect = GAME_FONT.render("Click on the ball! Score: 0", model.FONT_COLOR)
+            scr.blit(text_surface, (50, 50))
+
+
 pygame.display.update()
 clock = pygame.time.Clock()
 finished = False
@@ -39,17 +57,7 @@ while not finished:
             event.x = event.pos[0]
             event.y = event.pos[1]
             model.handler((event.x, event.y))
-    # Вывод надписи об успешности попадания. Использует переменную global_success (данные о последнем попадании)
-    if model.global_success == 1:
-        text_surface, rect = GAME_FONT.render("Good hit) Score: " + str(model.score), model.FONT_COLOR)
-        screen.blit(text_surface, (50, 50))
-    else:
-        if model.global_success == 0:
-            text_surface, rect = GAME_FONT.render("Bad hit... Score: " + str(model.score), model.FONT_COLOR)
-            screen.blit(text_surface, (50, 50))
-        else:
-            text_surface, rect = GAME_FONT.render("Click on the ball! Score: 0", model.FONT_COLOR)
-            screen.blit(text_surface, (50, 50))
+    print_score(screen)
     model.tick()
     for i in range(model.NUMBER_OF_BALLS):
         draw_ball(screen, model.balls[i])
