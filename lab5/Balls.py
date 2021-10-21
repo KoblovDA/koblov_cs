@@ -1,11 +1,13 @@
 from pygame.draw import *
 import pygame.freetype
 import lab5.model as model
+
 pygame.init()
 model.init()
 GAME_FONT = pygame.freetype.Font("arial.ttf", 40)
 screen = pygame.display.set_mode(model.space)
 global time_of_game, success, global_success, score, num_of_success
+
 
 def draw_ball(scr, parameters):
     """
