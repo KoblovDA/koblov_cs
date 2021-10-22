@@ -1,8 +1,7 @@
 import math
 from random import choice
-
+from random import randint as rnd
 import pygame
-
 
 FPS = 30
 
@@ -19,6 +18,7 @@ GAME_COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
 WIDTH = 800
 HEIGHT = 600
+g = 10
 
 
 class Ball:
@@ -47,7 +47,7 @@ class Ball:
         """
         # FIXME
         self.x += self.vx
-        self.y -= self.vy
+        self.y -= self.vy - g / 2
 
     def draw(self):
         pygame.draw.circle(
@@ -65,8 +65,10 @@ class Ball:
         Returns:
             Возвращает True в случае столкновения мяча и цели. В противном случае возвращает False.
         """
+        if (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2 < (obj.r + self.r) ** 2:
+            return True
         # FIXME
-            return False
+        return False
 
 
 class Gun:
@@ -90,7 +92,7 @@ class Gun:
         bullet += 1
         new_ball = Ball(self.screen)
         new_ball.r += 5
-        self.an = math.atan2((event.pos[1]-new_ball.y), (event.pos[0]-new_ball.x))
+        self.an = math.atan2((event.pos[1] - new_ball.y), (event.pos[0] - new_ball.x))
         new_ball.vx = self.f2_power * math.cos(self.an)
         new_ball.vy = - self.f2_power * math.sin(self.an)
         balls.append(new_ball)
@@ -100,14 +102,18 @@ class Gun:
     def targetting(self, event):
         """Прицеливание. Зависит от положения мыши."""
         if event:
-            self.an = math.atan((event.pos[1]-450) / (event.pos[0]-20))
+            self.an = -math.atan((event.pos[1] - 450) / (event.pos[0] - 20))
         if self.f2_on:
             self.color = RED
         else:
             self.color = GREY
 
     def draw(self):
-        # FIXIT don't know how to do it
+        pygame.draw.polygon(self.screen, BLACK, ((40, 450), (40 + 50 * math.cos(self.an), 450 - 50 * math.sin(self.an)),
+                                                 (40 + 50 * math.cos(self.an) - 10 * math.sin(self.an),
+                                                  450 - 50 * math.sin(self.an) - 10 * math.cos(self.an)),
+                                                 (40 - 10 * math.sin(self.an),
+                                                  450 - 10 * math.cos(self.an))))
 
     def power_up(self):
         if self.f2_on:
@@ -116,7 +122,6 @@ class Gun:
             self.color = RED
         else:
             self.color = GREY
-
 
 class Target:
     # self.points = 0
@@ -137,7 +142,6 @@ class Target:
 
     def draw(self):
         ...
-
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
