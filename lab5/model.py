@@ -75,12 +75,14 @@ def tick():
             balls[i][0] += balls[i][3]
             balls[i][1] += balls[i][4]
             balls[i][6] = change_of_color(balls[i][6], 8)
+            balls[i][5] += 1
         if squares[i][5] >= 200 or num_of_success == NUMBER_OF_BALLS + i:
             squares[i] = new_square()
         else:
             squares[i][0] += squares[i][3] + randint(-15, 15)
             squares[i][1] += squares[i][4] + randint(-15, 15)
             squares[i][6] = change_of_color(squares[i][6], 12)
+            squares[i][5] += 1
         x, y, r = balls[i][0], balls[i][1], balls[i][2]
         if x + r > space[0] or x - r < 0:
             balls[i][3] = -balls[i][3]

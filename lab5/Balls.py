@@ -2,6 +2,7 @@ from pygame.draw import *
 import pygame.freetype
 import lab5.model as model
 
+name = input("Введите своё имя: ")
 pygame.init()
 model.init()
 GAME_FONT = pygame.freetype.Font("arial.ttf", 40)
@@ -29,7 +30,7 @@ def print_score(scr):
     Вывод надписи об успешности попадания. Использует переменную global_success (данные о последнем попадании)
     и число очков score
     """
-    global global_success, score
+    global global_success, score, time_of_game
     if model.global_success == 1:
         text_surface, rect = GAME_FONT.render("Good hit) Score: " + str(model.score), model.FONT_COLOR)
         scr.blit(text_surface, (50, 50))
@@ -40,6 +41,14 @@ def print_score(scr):
         else:
             text_surface, rect = GAME_FONT.render("Click on the ball! Score: 0", model.FONT_COLOR)
             scr.blit(text_surface, (50, 50))
+    if model.time_of_game > 20000:
+        text_surface, rect = GAME_FONT.render("Hurry up. The game will end soon.", model.BLACK)
+        scr.blit(text_surface, (50, 100))
+
+
+def print_result():
+    global score
+    print("Твой финальный счёт: " + str(model.score))
 
 
 pygame.display.update()
@@ -53,7 +62,7 @@ while not finished:
     screen.fill(model.WHITE)
     for event in pygame.event.get():
         if (event.type == pygame.QUIT) or (
-                model.time_of_game >= 100000):  # Прерывание игры через некоторое время или при выходе
+                model.time_of_game >= 25000):  # Прерывание игры через некоторое время или при выходе
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
             event.x = event.pos[0]
@@ -68,3 +77,6 @@ while not finished:
     model.success = 0
     pygame.display.update()
 pygame.quit()
+print_result()
+with open('Table.txt', 'a') as t:
+    t.write(name + " : " + str(model.score))
