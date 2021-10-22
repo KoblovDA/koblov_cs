@@ -1,4 +1,5 @@
 from random import randint
+
 RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN = (255, 0, 0), (0, 0, 255), (255, 255, 0), (0, 255, 0), (255, 0, 255), (
     0, 255, 255)
 WHITE = (255, 255, 255)
@@ -13,6 +14,7 @@ success = -1  # Если клик успешен, то 1, иначе 0. До к�
 global_success = -1  # Запоминает последний клик. Аналогична success, но не зануляется после обработки события
 time_of_game = 0
 num_of_success = -1
+
 
 def new_ball():
     """
@@ -69,9 +71,11 @@ def init():
 
 def tick():
     for i in range(0, NUMBER_OF_BALLS):
+        # создание нового шарика, если существовал слишком долго или по нему попали
         if balls[i][5] >= 200 or num_of_success == i:
             balls[i] = new_ball()
         else:
+            # иначе сдвиг и изменение цвета
             balls[i][0] += balls[i][3]
             balls[i][1] += balls[i][4]
             balls[i][6] = change_of_color(balls[i][6], 8)
@@ -84,6 +88,7 @@ def tick():
             squares[i][6] = change_of_color(squares[i][6], 12)
             squares[i][5] += 1
         x, y, r = balls[i][0], balls[i][1], balls[i][2]
+        # проверка на соударение со стенкой
         if x + r > space[0] or x - r < 0:
             balls[i][3] = -balls[i][3]
         if y + r > space[1] or y - r < 0:
@@ -96,6 +101,9 @@ def tick():
 
 
 def handler(position):
+    """
+    Функция принимает позицию события и обрабатывает его
+    """
     global success, global_success, num_of_success, score
     x_pos = position[0]
     y_pos = position[1]
