@@ -18,7 +18,7 @@ GAME_COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
 WIDTH = 800
 HEIGHT = 600
-g = 10
+g = 2
 
 
 class Ball:
@@ -48,6 +48,7 @@ class Ball:
         # FIXME
         self.x += self.vx
         self.y -= self.vy - g / 2
+        self.vy -= g
 
     def draw(self):
         pygame.draw.circle(
@@ -123,25 +124,28 @@ class Gun:
         else:
             self.color = GREY
 
-class Target:
-    # self.points = 0
-    # self.live = 1
-    # FIXME: don't work!!! How to call this functions when object is created?
-    # self.new_target()
 
-    def new_target(self):
+class Target:
+
+    # FIXME: don't work!!! How to call this functions when object is created?
+
+    def __init__(self):
         """ Инициализация новой цели. """
         x = self.x = rnd(600, 780)
         y = self.y = rnd(300, 550)
         r = self.r = rnd(2, 50)
         color = self.color = RED
+        self.points = 0
+        self.live = 1
+
 
     def hit(self, points=1):
         """Попадание шарика в цель."""
         self.points += points
 
     def draw(self):
-        ...
+        pygame.draw.circle(screen, self.color, (self.x, self.y), self.r)
+
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
@@ -177,7 +181,6 @@ while not finished:
         if b.hittest(target) and target.live:
             target.live = 0
             target.hit()
-            target.new_target()
+            target.__init__()
     gun.power_up()
-
 pygame.quit()
