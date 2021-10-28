@@ -46,9 +46,19 @@ class Ball:
         и стен по краям окна (размер окна 800х600).
         """
         # FIXME
+        self.vy = (self.vy - g) * 0.99
+        self.vx = 0.98 * self.vx
         self.x += self.vx
         self.y -= self.vy - g / 2
-        self.vy -= g
+        if self.x > 800 - self.r:
+            self.vx = -self.vx * 0.8
+            self.x = 800
+        if self.x < self.r:
+            self.vx = -self.vx * 0.8
+            self.x = 0
+        if self.y > 500:
+            self.vy = - self.vy * 0.8
+            self.y = 500
 
     def draw(self):
         pygame.draw.circle(
@@ -93,9 +103,9 @@ class Gun:
         bullet += 1
         new_ball = Ball(self.screen)
         new_ball.r += 5
-        self.an = math.atan2((event.pos[1] - new_ball.y), (event.pos[0] - new_ball.x))
+        self.an = -math.atan2((event.pos[1] - 450), (event.pos[0] - 40))
         new_ball.vx = self.f2_power * math.cos(self.an)
-        new_ball.vy = - self.f2_power * math.sin(self.an)
+        new_ball.vy = self.f2_power * math.sin(self.an)
         balls.append(new_ball)
         self.f2_on = 0
         self.f2_power = 10
@@ -103,18 +113,20 @@ class Gun:
     def targetting(self, event):
         """Прицеливание. Зависит от положения мыши."""
         if event:
-            self.an = -math.atan((event.pos[1] - 450) / (event.pos[0] - 20))
+            self.an = -math.atan2((event.pos[1] - 450), (event.pos[0] - 40))
         if self.f2_on:
             self.color = RED
         else:
             self.color = GREY
 
     def draw(self):
-        pygame.draw.polygon(self.screen, BLACK, ((40, 450), (40 + 50 * math.cos(self.an), 450 - 50 * math.sin(self.an)),
-                                                 (40 + 50 * math.cos(self.an) - 10 * math.sin(self.an),
-                                                  450 - 50 * math.sin(self.an) - 10 * math.cos(self.an)),
-                                                 (40 - 10 * math.sin(self.an),
-                                                  450 - 10 * math.cos(self.an))))
+        delta = (50 + self.f2_power)
+        pygame.draw.polygon(self.screen, (2 * self.f2_power, 2 * self.f2_power, self.f2_power),
+                            ((40, 450), (40 + delta * math.cos(self.an), 450 - delta * math.sin(self.an)),
+                             (40 + delta * math.cos(self.an) - 10 * math.sin(self.an),
+                              450 - delta * math.sin(self.an) - 10 * math.cos(self.an)),
+                             (40 - 10 * math.sin(self.an),
+                              450 - 10 * math.cos(self.an))))
 
     def power_up(self):
         if self.f2_on:
@@ -134,10 +146,27 @@ class Target:
         x = self.x = rnd(600, 780)
         y = self.y = rnd(300, 550)
         r = self.r = rnd(2, 50)
+        vx = self.vx = rnd(-10, 10)
+        vy = self.vy = rnd(-10, 10)
         color = self.color = RED
         self.points = 0
         self.live = 1
 
+    def move(self):
+        self.x += self.vx
+        self.y -= self.vy
+        if self.x > 800 - self.r:
+            self.vx = -self.vx
+            self.x = 800 - self.r
+        if self.x < self.r:
+            self.vx = -self.vx
+            self.x = self.r
+        if self.y > 500:
+            self.vy = - self.vy
+            self.y = 500
+        if self.y < self.r:
+            self.vy = - self.vy
+            self.y = self.r
 
     def hit(self, points=1):
         """Попадание шарика в цель."""
@@ -154,15 +183,17 @@ balls = []
 
 clock = pygame.time.Clock()
 gun = Gun(screen)
-target = Target()
+targets = [Target() for _ in range(2)]
 finished = False
 
 while not finished:
     screen.fill(WHITE)
     gun.draw()
-    target.draw()
+    for obj in targets:
+        obj.draw()
     for b in balls:
-        b.draw()
+        if b.vx ** 2 + b.vy ** 2 > 3 or b.y < 480 + b.r:
+            b.draw()
     pygame.display.update()
 
     clock.tick(FPS)
@@ -178,9 +209,12 @@ while not finished:
 
     for b in balls:
         b.move()
-        if b.hittest(target) and target.live:
-            target.live = 0
-            target.hit()
-            target.__init__()
+        for obj in targets:
+            if b.hittest(obj) and obj.live:
+                obj.live = 0
+                obj.hit()
+                obj.__init__()
+    for obj in targets:
+        obj.move()
     gun.power_up()
 pygame.quit()
