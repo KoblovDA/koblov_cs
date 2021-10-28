@@ -76,7 +76,7 @@ class Ball:
         Returns:
             Возвращает True в случае столкновения мяча и цели. В противном случае возвращает False.
         """
-        if (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2 < (obj.r + self.r) ** 2:
+        if (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2 <= (obj.r + self.r) ** 2:
             return True
         # FIXME
         return False
@@ -192,7 +192,7 @@ while not finished:
     for obj in targets:
         obj.draw()
     for b in balls:
-        if b.vx ** 2 + b.vy ** 2 > 3 or b.y < 480 + b.r:
+        if b.vx ** 2 + b.vy ** 2 > 3 or b.y < 485 + b.r:
             b.draw()
     pygame.display.update()
 
