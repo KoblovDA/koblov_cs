@@ -22,7 +22,7 @@ g = 2
 
 
 class Ball:
-    def __init__(self, screen: pygame.Surface, x=40, y=450):
+    def __init__(self, screen: pygame.Surface, x, y):
         """ Конструктор класса ball
 
         Args:
@@ -45,7 +45,6 @@ class Ball:
         self.x и self.y с учетом скоростей self.vx и self.vy, силы гравитации, действующей на мяч,
         и стен по краям окна (размер окна 800х600).
         """
-        # FIXME
         self.vy = (self.vy - g) * 0.99
         self.vx = 0.98 * self.vx
         self.x += self.vx
@@ -78,7 +77,6 @@ class Ball:
         """
         if (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2 <= (obj.r + self.r) ** 2:
             return True
-        # FIXME
         return False
 
 
@@ -89,6 +87,18 @@ class Gun:
         self.f2_on = 0
         self.an = 1
         self.color = GREY
+        self.x = 40
+        self.y = 450
+
+    def move(self, key):
+        if key[pygame.K_d]:
+            self.x += 5
+        if key[pygame.K_a]:
+            self.x -= 5
+        if key[pygame.K_w]:
+            self.y -= 5
+        if key[pygame.K_s]:
+            self.y += 5
 
     def fire2_start(self, event):
         self.f2_on = 1
@@ -101,9 +111,9 @@ class Gun:
         """
         global balls, bullet
         bullet += 1
-        new_ball = Ball(self.screen)
+        new_ball = Ball(self.screen, self.x, self.y)
         new_ball.r += 5
-        self.an = -math.atan2((event.pos[1] - 450), (event.pos[0] - 40))
+        self.an = -math.atan2((event.pos[1] - self.y), (event.pos[0] - self.x))
         new_ball.vx = self.f2_power * math.cos(self.an)
         new_ball.vy = self.f2_power * math.sin(self.an)
         balls.append(new_ball)
@@ -113,7 +123,7 @@ class Gun:
     def targetting(self, event):
         """Прицеливание. Зависит от положения мыши."""
         if event:
-            self.an = -math.atan2((event.pos[1] - 450), (event.pos[0] - 40))
+            self.an = -math.atan2((event.pos[1] - self.y), (event.pos[0] - self.x))
         if self.f2_on:
             self.color = RED
         else:
@@ -122,11 +132,11 @@ class Gun:
     def draw(self):
         delta = (50 + self.f2_power)
         pygame.draw.polygon(self.screen, (2 * self.f2_power, 2 * self.f2_power, self.f2_power),
-                            ((40, 450), (40 + delta * math.cos(self.an), 450 - delta * math.sin(self.an)),
-                             (40 + delta * math.cos(self.an) - 10 * math.sin(self.an),
-                              450 - delta * math.sin(self.an) - 10 * math.cos(self.an)),
-                             (40 - 10 * math.sin(self.an),
-                              450 - 10 * math.cos(self.an))))
+                            ((self.x, self.y), (self.x + delta * math.cos(self.an), self.y - delta * math.sin(self.an)),
+                             (self.x + delta * math.cos(self.an) - 10 * math.sin(self.an),
+                              self.y - delta * math.sin(self.an) - 10 * math.cos(self.an)),
+                             (self.x - 10 * math.sin(self.an),
+                              self.y - 10 * math.cos(self.an))))
 
     def power_up(self):
         if self.f2_on:
@@ -138,17 +148,14 @@ class Gun:
 
 
 class Target:
-
-    # FIXME: don't work!!! How to call this functions when object is created?
-
     def __init__(self):
         """ Инициализация новой цели. """
-        x = self.x = rnd(600, 780)
-        y = self.y = rnd(300, 550)
-        r = self.r = rnd(2, 50)
-        vx = self.vx = rnd(-10, 10)
-        vy = self.vy = rnd(-10, 10)
-        color = self.color = RED
+        self.x = rnd(600, 780)
+        self.y = rnd(300, 550)
+        self.r = rnd(2, 50)
+        self.vx = rnd(-10, 10)
+        self.vy = rnd(-10, 10)
+        self.color = RED
         self.points = 0
         self.live = 1
 
@@ -198,6 +205,9 @@ while not finished:
 
     clock.tick(FPS)
     for event in pygame.event.get():
+        keys = pygame.key.get_pressed()
+        if keys:
+            gun.move(keys)
         if event.type == pygame.QUIT:
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
