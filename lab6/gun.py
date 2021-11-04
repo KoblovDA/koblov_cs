@@ -20,18 +20,23 @@ WIDTH = 800
 HEIGHT = 600
 g = 2
 
-
-class Ball:
-    def __init__(self, screen: pygame.Surface, x, y):
+class Shot:
+    def __init__(self):
+        global gun, screen
+        self.x = gun.x
+        self.y = gun.y
+        self.screen = screen
+class Ball (Shot):
+    def __init__(self, screen: pygame.Surface, gun):
         """ Конструктор класса ball
 
         Args:
         x - начальное положение мяча по горизонтали
         y - начальное положение мяча по вертикали
         """
-        self.screen = screen
-        self.x = x
-        self.y = y
+
+        super(Ball, self).__init__()
+
         self.r = 10
         self.vx = 0
         self.vy = 0
@@ -78,11 +83,10 @@ class Ball:
         return (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2 <= (obj.r + self.r) ** 2
 
 
-class Laser:
+class Laser(Shot):
     def __init__(self, screen, gun):
-        self.screen = screen
-        self.x = gun.x
-        self.y = gun.y
+
+        super(Laser, self).__init__()
         self.width = 5
         self.angle = 1
         self.live = 0
@@ -133,7 +137,7 @@ class Gun:
         """
         global balls, bullet
         bullet += 1
-        new_ball = Ball(self.screen, self.x, self.y)
+        new_ball = Ball(self.screen, Gun)
         new_ball.r += 5
         self.an = -math.atan2((event.pos[1] - self.y), (event.pos[0] - self.x))
         new_ball.vx = self.f2_power * math.cos(self.an)
