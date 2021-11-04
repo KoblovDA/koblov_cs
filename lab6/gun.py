@@ -67,7 +67,7 @@ class Ball:
             self.r
         )
 
-    def hittest(self, obj):
+    def hit_test(self, obj):
         """Функция проверяет сталкивалкивается ли данный обьект с целью, описываемой в обьекте obj.
 
         Args:
@@ -75,9 +75,31 @@ class Ball:
         Returns:
             Возвращает True в случае столкновения мяча и цели. В противном случае возвращает False.
         """
-        if (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2 <= (obj.r + self.r) ** 2:
-            return True
-        return False
+        return (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2 <= (obj.r + self.r) ** 2
+
+
+class Laser:
+    def __init__(self, screen, gun):
+        self.screen = screen
+        self.x = gun.x
+        self.y = gun.y
+        self.width = 5
+        self.angle = 1
+        self.live = 0
+
+    def draw(self):
+        pygame.draw.line(self.screen, RED, (self.x + 60 * math.cos(self.angle), self.y - 60 * math.sin(self.angle)),
+                         (self.x + 1000 * math.cos(self.angle), self.y - math.sin(self.angle) * 1000), self.width)
+
+    def move(self, event, gun):
+        self.angle = -math.atan2((event.pos[1] - self.y), (event.pos[0] - self.x))
+        self.x = gun.x
+        self.y = gun.y
+
+    def hit_test(self, obj):
+        normal = [math.tan(self.angle), 1]
+        return abs(((normal[0] * (obj.x - self.x) + normal[1] * (obj.y - self.y)) / (
+                normal[0] ** 2 + normal[1] ** 2) ** 0.5)) <= obj.r
 
 
 class Gun:
@@ -190,6 +212,7 @@ balls = []
 
 clock = pygame.time.Clock()
 gun = Gun(screen)
+laser = Laser(screen, gun)
 targets = [Target() for _ in range(2)]
 finished = False
 
@@ -201,8 +224,10 @@ while not finished:
     for b in balls:
         if b.vx ** 2 + b.vy ** 2 > 3 or b.y < 485 + b.r:
             b.draw()
+    if laser.live > 0:
+        laser.draw()
+        laser.live -= 1
     pygame.display.update()
-
     clock.tick(FPS)
     for event in pygame.event.get():
         keys = pygame.key.get_pressed()
@@ -211,20 +236,29 @@ while not finished:
         if event.type == pygame.QUIT:
             finished = True
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            gun.fire2_start(event)
-        elif event.type == pygame.MOUSEBUTTONUP:
-            gun.fire2_end(event)
-        elif event.type == pygame.MOUSEMOTION:
-            gun.targetting(event)
+            if event.button == 1:
+                gun.fire2_start(event)
+            elif event.button == 3:
+                laser.live = 10
 
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1:
+                gun.fire2_end(event)
+        elif event.type == pygame.MOUSEMOTION:
+            laser.move(event, gun)
+            gun.targetting(event)
     for b in balls:
         b.move()
         for obj in targets:
-            if b.hittest(obj) and obj.live:
+            if b.hit_test(obj) and obj.live:
                 obj.live = 0
                 obj.hit()
                 obj.__init__()
     for obj in targets:
+        if laser.hit_test(obj) and obj.live and laser.live > 0:
+            obj.live = 0
+            obj.hit()
+            obj.__init__()
         obj.move()
     gun.power_up()
 pygame.quit()
