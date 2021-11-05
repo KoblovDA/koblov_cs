@@ -233,6 +233,25 @@ class Square(Enemy):
         pygame.draw.rect(screen, self.color, (self.x - self.r, self.y - self.r, 2 * self.r, 2 * self.r))
 
 
+class Bomb:
+    def __init__(self):
+        self.x = rnd(50, 750)
+        self.y = -10
+        self.vy = rnd(6, 15)
+        self.r = rnd(10, 25)
+        self.color = BLACK
+        self.live = 1
+
+    def move(self):
+        self.y += self.vy
+
+    def draw(self):
+        pygame.draw.circle(screen, self.color, (self.x, self.y), self.r, 2)
+
+    def hit_test(self, obj):
+        return (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2 <= self.r ** 2
+
+
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 GAME_FONT = pygame.freetype.Font("arial.ttf", 40)
@@ -240,12 +259,14 @@ bullet = 0
 score = 0
 balls = []
 squares = []
+bombs = []
 
 clock = pygame.time.Clock()
 gun = Gun(screen)
 laser = Laser(screen, gun)
 targets = [Target() for _ in range(5)]
 squares = [Square() for _ in range(2)]
+bombs = [Bomb() for _ in range(5)]
 finished = False
 
 while not finished:
@@ -263,6 +284,13 @@ while not finished:
         laser.live -= 1
     text_surface, rect = GAME_FONT.render("Score: " + str(score), BLACK)
     screen.blit(text_surface, (50, 50))
+    for obj in bombs:
+        obj.draw()
+        if obj.hit_test(gun):
+            text_surface, rect = GAME_FONT.render("GAME OVER" + str(score), BLACK)
+            clock.tick(3 * FPS)
+            finished = True
+
     pygame.display.update()
     clock.tick(FPS)
     for event in pygame.event.get():
@@ -301,8 +329,14 @@ while not finished:
             score += 1
             obj.__init__()
         obj.move()
+
     for obj in squares:
         obj.move()
         obj.jump()
+    for obj in bombs:
+        if obj.y > 600:
+            obj.live = 0
+            obj.__init__()
+        obj.move()
     gun.power_up()
 pygame.quit()
