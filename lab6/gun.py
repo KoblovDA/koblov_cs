@@ -2,6 +2,7 @@ import math
 from random import choice
 from random import randint as rnd
 import pygame
+import pygame.freetype
 
 FPS = 30
 
@@ -15,7 +16,6 @@ BLACK = (0, 0, 0)
 WHITE = 0xFFFFFF
 GREY = 0x7D7D7D
 GAME_COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
-
 WIDTH = 800
 HEIGHT = 600
 g = 2
@@ -211,7 +211,9 @@ class Target:
 
 pygame.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+GAME_FONT = pygame.freetype.Font("arial.ttf", 40)
 bullet = 0
+score = 0
 balls = []
 
 clock = pygame.time.Clock()
@@ -231,6 +233,8 @@ while not finished:
     if laser.live > 0:
         laser.draw()
         laser.live -= 1
+    text_surface, rect = GAME_FONT.render("Score: " + str(score), BLACK)
+    screen.blit(text_surface, (50, 50))
     pygame.display.update()
     clock.tick(FPS)
     for event in pygame.event.get():
@@ -257,11 +261,13 @@ while not finished:
             if b.hit_test(obj) and obj.live:
                 obj.live = 0
                 obj.hit()
+                score += 1
                 obj.__init__()
     for obj in targets:
         if laser.hit_test(obj) and obj.live and laser.live > 0:
             obj.live = 0
             obj.hit()
+            score += 1
             obj.__init__()
         obj.move()
     gun.power_up()
