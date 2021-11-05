@@ -20,13 +20,16 @@ WIDTH = 800
 HEIGHT = 600
 g = 2
 
+
 class Shot:
     def __init__(self):
         global gun, screen
         self.x = gun.x
         self.y = gun.y
         self.screen = screen
-class Ball (Shot):
+
+
+class Ball(Shot):
     def __init__(self, screen: pygame.Surface, gun):
         """ Конструктор класса ball
 
@@ -72,7 +75,7 @@ class Ball (Shot):
             self.r
         )
 
-    def hit_test(self, obj):
+    def hit_test(self, obj, num):
         """Функция проверяет сталкивалкивается ли данный обьект с целью, описываемой в обьекте obj.
 
         Args:
@@ -80,12 +83,14 @@ class Ball (Shot):
         Returns:
             Возвращает True в случае столкновения мяча и цели. В противном случае возвращает False.
         """
-        return (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2 <= (obj.r + self.r) ** 2
+        if num == 0:
+            return (obj.x - self.x) ** 2 + (obj.y - self.y) ** 2 <= (obj.r + self.r) ** 2
+        else:
+            return max(abs(obj.x - self.x), abs(obj.y - self.y)) <= obj.r + self.r
 
 
 class Laser(Shot):
     def __init__(self, screen, gun):
-
         super(Laser, self).__init__()
         self.width = 5
         self.angle = 1
@@ -173,16 +178,12 @@ class Gun:
             self.color = GREY
 
 
-class Target:
+class Enemy:
     def __init__(self):
-        """ Инициализация новой цели. """
         self.x = rnd(600, 780)
         self.y = rnd(300, 550)
-        self.r = rnd(2, 50)
         self.vx = rnd(-10, 10)
         self.vy = rnd(-10, 10)
-        self.color = RED
-        self.points = 0
         self.live = 1
 
     def move(self):
@@ -201,12 +202,35 @@ class Target:
             self.vy = - self.vy
             self.y = self.r
 
-    def hit(self, points=1):
-        """Попадание шарика в цель."""
-        self.points += points
+
+class Target(Enemy):
+    def __init__(self):
+        """ Инициализация новой цели. """
+        super(Target, self).__init__()
+        self.r = rnd(10, 50)
+        self.color = GAME_COLORS[rnd(0, 5)]
 
     def draw(self):
         pygame.draw.circle(screen, self.color, (self.x, self.y), self.r)
+
+
+class Square(Enemy):
+    def __init__(self):
+        super(Square, self).__init__()
+        self.color = BLACK
+        self.live = 1
+        self.r = rnd(5, 15)
+
+    def jump(self):
+        if 700 - self.r > self.x > 100 + self.r and 100 + self.r < self.y < 500 - self.r:
+            if rnd(0, 100) < 25:
+                rnd_x = rnd(-1, 1)
+                rnd_y = rnd(-1, 1)
+                self.x += rnd_x * 70
+                self.y += rnd_y * 70
+
+    def draw(self):
+        pygame.draw.rect(screen, self.color, (self.x - self.r, self.y - self.r, 2 * self.r, 2 * self.r))
 
 
 pygame.init()
@@ -215,17 +239,21 @@ GAME_FONT = pygame.freetype.Font("arial.ttf", 40)
 bullet = 0
 score = 0
 balls = []
+squares = []
 
 clock = pygame.time.Clock()
 gun = Gun(screen)
 laser = Laser(screen, gun)
-targets = [Target() for _ in range(2)]
+targets = [Target() for _ in range(5)]
+squares = [Square() for _ in range(2)]
 finished = False
 
 while not finished:
     screen.fill(WHITE)
     gun.draw()
     for obj in targets:
+        obj.draw()
+    for obj in squares:
         obj.draw()
     for b in balls:
         if b.vx ** 2 + b.vy ** 2 > 3 or b.y < 485 + b.r:
@@ -258,17 +286,23 @@ while not finished:
     for b in balls:
         b.move()
         for obj in targets:
-            if b.hit_test(obj) and obj.live:
+            if b.hit_test(obj, 0) and obj.live:
                 obj.live = 0
-                obj.hit()
                 score += 1
+                obj.__init__()
+        for obj in squares:
+            if b.hit_test(obj, 1) and obj.live:
+                obj.live = 0
+                score += 5
                 obj.__init__()
     for obj in targets:
         if laser.hit_test(obj) and obj.live and laser.live > 0:
             obj.live = 0
-            obj.hit()
             score += 1
             obj.__init__()
         obj.move()
+    for obj in squares:
+        obj.move()
+        obj.jump()
     gun.power_up()
 pygame.quit()
